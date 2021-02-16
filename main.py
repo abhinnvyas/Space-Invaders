@@ -27,6 +27,24 @@ BLUE_LASER = pygame.image.load(os.path.join('assets', 'pixel_laser_blue.png'))
 
 BG = pygame.transform.scale(pygame.image.load(os.path.join('assets', 'background-black.png')), (WIDTH, HEIGHT))
 
+class Laser(object):
+    def __init__(self, x, y, img):
+        self.x = x
+        self.y = y
+        self.img = img
+
+    def draw(self, window):
+        window.blit(self.img, (self.x, self.y))
+
+    def move(self, vel):
+        self.y += vel
+
+    def is_offscreen(self, sheight): #screen height
+        return self.y + self.img.get_height() > sheight
+
+    def is_collided(self, obj):
+        return collide(self, obj)
+
 class Ship(object):
     def __init__(self, x, y, health=100):
         self.x = x
@@ -39,6 +57,21 @@ class Ship(object):
 
     def draw(self, window):
         window.blit(self.ship_img, (self.x, self.y))
+        
+        for laser in self.lasers:
+            laser.draw(window)
+
+    def cooldown(self):
+        if self.cool_down_counter != 0:
+            self.cool_down_counter -= 1
+
+    def shoot(self):
+        self.cooldown()
+        if self.cool_down_counter == 0:
+            laser = Laser(self.x + self.get_width()//2, self.y + self.get_height(), self.laser_img)
+            self.lasers.append(laser)
+            self.cool_down_counter += 1
+            #laser.move()
 
     def get_width(self):
         return self.ship_img.get_width()
@@ -53,6 +86,11 @@ class Player(Ship):
         self.laser_img = YELLOW_LASER
         self.mask = pygame.mask.from_surface(self.ship_img)
         self.max_health = health
+
+    def shoot(self):
+        super().shoot()
+        for laser in self.lasers:
+            laser.move(-5)
 
 class Enemy(Ship):
     COLOR_MAP = {
@@ -70,6 +108,8 @@ class Enemy(Ship):
     def move(self, vel):
         self.y += vel
 
+def collide(obj1, obj2):
+    return  True if obj1.mask.overlap(obj2) != None else False
 
 def redraw_window(player, enemies, lives, level, lost):
     WIN.blit(BG, (0,0))
@@ -141,6 +181,9 @@ def main():
             player.y -= player_vel
         if key_pressed[pygame.K_DOWN] and player.y + player_vel + player.get_height() < HEIGHT : #Down
             player.y += player_vel
+
+        if key_pressed[pygame.K_SPACE]:
+            player.shoot()
 
         for enemy in enemies:
             enemy.move(enemy_vel)
