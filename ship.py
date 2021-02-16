@@ -10,7 +10,7 @@ class Ship:
         self.img = None
         self.laser_img = None
         self.lasers = []
-        self.cooldown_time = 500
+        self.cooldown_time = 0
         self.cooldown_counter = 0
         self.spawn_time = 0
 
@@ -49,4 +49,21 @@ class Player(Ship):
         self.img = self.IMG
         self.laser_img = self.LASER
         self.mask = pygame.mask.from_surface(self.img)
+        self.cooldown_time = 500
         self.vel = 5
+
+class Enemy(Ship):
+
+    IMG = pygame.transform.scale(pygame.image.load(os.path.join('assets', 'space_ship_lvl1.png')),(55,55))
+    LASER = pygame.transform.scale(pygame.image.load(os.path.join('assets', 'pixel_laser_green.png')), (30,50))
+
+    def __init__(self, x, y, health=100):
+        super().__init__(x, y, health=health)
+        self.img = self.IMG
+        self.laser_img = self.LASER
+        self.cooldown_time = 3000
+        self.mask = pygame.mask.from_surface(self.img)
+        self.vel = 2
+
+    def move(self):
+        self.y += self.vel

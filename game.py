@@ -1,6 +1,7 @@
 import pygame
-from ship import Player
+from ship import Enemy, Player
 import os
+import random
 
 WIDTH, HEIGHT = 700, 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -10,8 +11,14 @@ FPS = 60
 
 BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")),(WIDTH, HEIGHT))
 
-def redraw_window(player):
+def redraw_window(player, enemies):
     WIN.blit(BG, (0, 0))
+    
+    for enemy in enemies:
+        enemy.draw(WIN)
+        enemy.shoot(vel=4)
+        enemy.move()
+
     player.draw(WIN)
     pygame.display.update()
 
@@ -20,9 +27,17 @@ def game_loop():
 
     player = Player(300,500)
 
+    wave_lenth = 5
+    enemies = []
+
     run = True
     while run:
         clock.tick(FPS)
+
+        if len(enemies) < wave_lenth:
+            for _ in range(wave_lenth):
+                enemy = Enemy(random.randrange(50, WIDTH-100),random.randrange(-1500,-100))
+                enemies.append(enemy)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -40,6 +55,6 @@ def game_loop():
         if key_pressed[pygame.K_SPACE]:
             player.shoot(vel=-5)
 
-        redraw_window(player)
+        redraw_window(player, enemies)
 
 game_loop()
