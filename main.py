@@ -9,6 +9,7 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Space Invaders")
 
 LEVEL_LIVES_FONT = pygame.font.SysFont("comicsans", 40)
+GAME_OVER_FONT = pygame.font.SysFont("comicsans",60)
 
 FPS = 60
 
@@ -69,7 +70,8 @@ class Enemy(Ship):
     def move(self, vel):
         self.y += vel
 
-def redraw_window(player, enemies, lives, level):
+
+def redraw_window(player, enemies, lives, level, lost):
     WIN.blit(BG, (0,0))
 
     for enemy in enemies:
@@ -82,6 +84,11 @@ def redraw_window(player, enemies, lives, level):
     WIN.blit(level_draw_text, (WIDTH- level_draw_text.get_width() -10,10))
 
     player.draw(WIN)
+
+    if lost:
+        game_over_text = GAME_OVER_FONT.render("GAME OVER!",1,YELLOW)
+        WIN.blit(game_over_text, (WIDTH//2 - game_over_text.get_width()//2, HEIGHT//2 - game_over_text.get_height()//2))
+
     pygame.display.update()
 
 def main():
@@ -95,11 +102,25 @@ def main():
 
     enemies = []
     wave_length = 5
-    enemy_vel = 1
+    enemy_vel = 10
+
+    lost = False
+    lost_count = 0
 
     run = True
     while run:
         clock.tick(FPS)
+        redraw_window(player, enemies, lives, level, lost)
+
+        if (lives == 0) or (player.health == 0):
+            lost = True
+            lost_count += 1
+
+        if lost:
+            if lost_count > FPS * 3:
+                break
+            else:
+                continue
 
         if len(enemies) == 0:
             level += 1
@@ -123,10 +144,9 @@ def main():
 
         for enemy in enemies:
             enemy.move(enemy_vel)
-            if enemy.y + enemy.get_width() > HEIGHT:
+            if enemy.y > HEIGHT:
+                lives-=1
                 enemies.remove(enemy)
-
-        redraw_window(player, enemies, lives, level)
 
     pygame.quit()
 
