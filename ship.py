@@ -1,5 +1,4 @@
 import pygame
-from pygame import transform
 from laser import Laser
 import os
 
@@ -58,6 +57,7 @@ class Ship:
             if self.collide(laser, enemy):
                 enemy.health -= laser.damage
                 self.lasers.remove(laser)
+                return True
 
     def health_bar(self, window):
         pygame.draw.rect(window, (255, 255, 255), (self.x,
@@ -79,15 +79,16 @@ class Player(Ship):
         self.laser_img = self.LASER
         self.laser_damage = 20
         self.mask = pygame.mask.from_surface(self.img)
-        self.cooldown_time = 500
+        self.cooldown_time = 300
         self.vel = 5
         self.health_bar_color = (0, 255, 0)
 
+
 class Enemy(Ship):
     SHIP = {
-        "level1": (pygame.transform.rotate(pygame.transform.scale(pygame.image.load(os.path.join('assets', 'space_ship_lvl1.png')), (55,55)), 180), pygame.transform.scale(pygame.image.load(os.path.join('assets', 'pixel_laser_yellow.png')), (3,50)), 20, 10),
-        "level2": (pygame.transform.rotate(pygame.transform.scale(pygame.image.load(os.path.join('assets', 'space_ship_lvl2.png')), (55,55)), 180), pygame.transform.scale(pygame.image.load(os.path.join('assets', 'pixel_laser_blue.png')), (30, 50)), 40, 30),
-        "level3": (pygame.transform.rotate(pygame.transform.scale(pygame.image.load(os.path.join('assets', 'space_ship_lvl3.png')), (55,55)), 180), pygame.transform.scale(pygame.image.load(os.path.join('assets', 'pixel_laser_green.png')), (30, 50)), 60, 40)
+        "level1": (pygame.transform.rotate(pygame.transform.scale(pygame.image.load(os.path.join('assets', 'space_ship_lvl1.png')), (55, 55)), 180), pygame.transform.scale(pygame.image.load(os.path.join('assets', 'pixel_laser_yellow.png')), (30, 50)), 20, 10),
+        "level2": (pygame.transform.rotate(pygame.transform.scale(pygame.image.load(os.path.join('assets', 'space_ship_lvl2.png')), (55, 55)), 180), pygame.transform.scale(pygame.image.load(os.path.join('assets', 'pixel_laser_blue.png')), (30, 50)), 40, 30),
+        "level3": (pygame.transform.rotate(pygame.transform.scale(pygame.image.load(os.path.join('assets', 'space_ship_lvl3.png')), (55, 55)), 180), pygame.transform.scale(pygame.image.load(os.path.join('assets', 'pixel_laser_green.png')), (30, 50)), 60, 40)
     }
 
     def __init__(self, x, y, level, health=100):
@@ -97,11 +98,15 @@ class Enemy(Ship):
         self.img = self.SHIP[level][0]
         self.laser_img = self.SHIP[level][1]
         self.laser_damage = 20
-        self.cooldown_time = 3000
+        self.cooldown_time = 2000
         self.mask = pygame.mask.from_surface(self.img)
-        self.vel = 2
+        self.vel = 1
         self.health_bar_color = (255, 0, 0)
         self.collision_damage = self.SHIP[level][3]
 
     def move(self):
         self.y += self.vel
+
+    def activate(self, bullet_vel):
+        super().shoot(vel=bullet_vel)
+        self.move()
