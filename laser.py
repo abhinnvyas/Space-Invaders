@@ -14,3 +14,6 @@ class Laser:
 
     def draw(self, window):
         window.blit(self.img, (self.x, self.y))
+
+    def is_offscreen(self, height):
+        return self.y + self.img.get_height() > height or self.y < 0
