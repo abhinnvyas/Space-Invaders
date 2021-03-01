@@ -3,7 +3,7 @@ from ship import Enemy, Player
 import os
 import random
 
-pygame.font.init()
+pygame.font.init()c
 
 NORMAL_FONT = pygame.font.SysFont('comicsans', 40, True)
 WIN_OVER_FONT = pygame.font.SysFont('comicsans', 100)
